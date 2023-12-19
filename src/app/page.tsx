@@ -1,11 +1,40 @@
+"use client";
+
 import { SvgLogo } from "@/components/SvgLogo/SvgLogo";
 import { Input } from "@/components/Input/Input";
 import Image from "next/image";
 import spotify from "../../public/assets/img/spotify.png";
 import apple from "../../public/assets/img/apple.png";
 import deezer from "../../public/assets/img/deezer.png";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const registerEmailSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Campo vazio.")
+    .email("E-email informado não é válido.")
+    .toLowerCase(),
+});
+
+type IregisterEmail = z.infer<typeof registerEmailSchema>;
 
 export default function Home() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<IregisterEmail>({
+    resolver: zodResolver(registerEmailSchema),
+  });
+
+  const registerEmail = (email: IregisterEmail) => {
+    console.log(email);
+    reset();
+  };
+
   return (
     <main className="flex min-h-screen  flex-2 justify-start p-16 bg-[#121a2a] max-lg:bg-center">
       <section className="w-[600px]">
@@ -20,12 +49,16 @@ export default function Home() {
             in delectus doloremque ab? Aliquam quae ea illo nulla quos soluta.
             Nam, laborum.
           </p>
-          <Input
-            text="Seja notificado quando sair um episódio"
-            id="label"
-            placeholder="Digite seu email"
-            type="email"
-          />
+          <form onSubmit={handleSubmit(registerEmail)}>
+            <Input
+              text="Seja notificado quando sair um episódio"
+              id="label"
+              placeholder="Digite seu email"
+              type="email"
+              {...register("email")}
+              textError={errors.email && errors.email.message}
+            />
+          </form>
         </div>
         <div className="mt-20 flex  justify-start items-center gap-4 ">
           <Image
